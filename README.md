@@ -9,6 +9,7 @@
 - [GeoServer](https://geoserver.org/) - open source server for sharing geospatial data.
 - [PostgreSQL](https://www.postgresql.org/) - open source server for sharing geospatial data.
 - [PostGIS](https://postgis.net/) - PostgreSQL database extension which adding support storing, indexing and querying geographic data.
+- The fire station in Bangkok shape file that used in this project - [data.go.th](https://data.go.th/dataset/fire_station)
 
 ## :green_circle: Setup PostgreSQL and create PostGIS database to store shape file
 
