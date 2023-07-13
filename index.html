@@ -1,0 +1,128 @@
+<html>
+
+<head>
+  <title>PostGIS tutorial | Gimleng.com</title>
+  <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  </meta>
+  <!--CSS-->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/L.switchBasemap.css" />
+  <link href="css/all.css" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet" />
+  <link href="css/L.Control.Layers.Tree.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/L.Control.Locate.min.css" />
+  <link rel="stylesheet" href="css/main.css" />
+  <!--JS-->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+    integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="js/bootstrap-switch-button.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/bootstrap.bundle.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/L.switchBasemap.js"></script>
+  <script src="js/L.Control.Layers.Tree.js"></script>
+  <script src="js/leaflet-routing-machine.js"></script>
+  <script src='js/L.Control.Locate.min.js'></script>
+</head>
+
+<body id="page-top">
+  <nav class="navbar navbar-expand-lg bg-secondary text-uppercase fixed-bottom"
+    style="padding-bottom: 1px;padding-top: 1px" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand">PostGIS tutorial</a>
+      <button class="navbar-toggler text-uppercase font-weight-bold bg-primary text-white rounded" type="button"
+        data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive"
+        aria-expanded="false" aria-label="Toggle navigation">
+        เมนู
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ms-auto">
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <section class="page-section" id="map" style=" padding-top: 0px">
+
+    <div id="map" style="height: 100%"></div>
+    <script>
+      var map = L.map('map').setView([13.746268, 100.5258001], 5);
+
+      var wms_url = 'http://localhost:8080/geoserver/Spatial_Data/wms?'
+      var fire_station_subs = L.tileLayer.wms("http://localhost:8080/geoserver/Spatial_Data/wms?", {
+        maxZoom: 20,
+        layers: 'Spatial_Data:fire_station',
+        transparent: true,
+        format: 'image/png'
+      });
+
+      /*Basemap switcher*/
+      new L.basemapsSwitcher([
+        {
+          layer: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          }).addTo(map), //DEFAULT MAP
+          icon: 'assets/img/map1.png',
+          name: 'Openstreet'
+        },
+        {
+          layer: L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+          }),
+          icon: 'assets/img/map2.png',
+          name: 'Stadia'
+        },
+        {
+          layer: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+          }),
+          icon: 'assets/img/map3.png',
+          name: 'OpenTopo'
+        },
+      ], { position: 'topright' }).addTo(map);
+
+      /*Layer Control*/
+      var thunderAttr = { attribution: '© OpenStreetMap contributors. Tiles courtesy of Andy Allan' }
+      var transport = L.tileLayer(
+        '//{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=YOUR_API',
+        thunderAttr
+      );
+
+      var cycle = L.tileLayer(
+        '//{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=YOUR_API',
+        thunderAttr
+      );
+
+      var outdoors = L.tileLayer(
+        '//{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=YOUR_API',
+        thunderAttr
+      );
+
+      var fire_sta = [
+        {
+          label: 'สถานีดับเพลิงในเขต กทม.',
+          children: [
+            { label: 'สถานีย่อย', layer: fire_station_subs }
+          ]
+        }
+      ];
+
+      var layer_c = L.control.layers.tree(fire_sta,
+        {
+          namedToggle: true,
+          selectorBack: false,
+          closedSymbol: '&#8862; &#128204;',
+          openedSymbol: '&#8863; &#127758;',
+          collapsed: false,
+        });
+      layer_c.addTo(map).collapseTree().expandSelected().collapseTree(true);
+    </script>
+  </section>
+</body>
+
+</html>
